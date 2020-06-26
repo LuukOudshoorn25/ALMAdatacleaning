@@ -44,4 +44,4 @@ brightnessunit     =  "Jy/beam"
 clipminmax         =  False
 )
 
-imcontsub("TP.image",chans="0~30;670~699",linefile='TP.line',contfile='TP.residual')
+imcontsub("TP.image",chans="0~30;670~699",linefile='TP.line',contfile='TP.final.image')
