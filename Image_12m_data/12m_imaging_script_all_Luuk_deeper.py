@@ -1,15 +1,17 @@
 linefreq = '230.5380GHz'
 Vstart = '282.715km/s'
-chanwidth = '-160m/s'
-Nchans = 351
+chanwidth = '-80m/s'
+Nchans = 701
 
-NumIter = 6000
-cleanthres = '0.25mJy'
-cellsize = '0.5arcsec'
-mapsize = [900, 1120]
+NumIter = 150
+cleanthres = '0.2mJy'
+cellsize = '0.3arcsec'
+mapsize = [1500, 1890]
 phasecenter = "J2000 05h38m40.7 -69d04m29.47"
 zerospacing = '../Image_7m_data/mosaic_with_feathered/mosaic_using_feathers.image.smooth/' 
-SDFAC = 1.
+SDFAC = 1.05
+
+
 ###########################################################
 
 def process(out_file,zerospacing):
@@ -62,10 +64,9 @@ def process(out_file,zerospacing):
 
 
 ###########################################################
-target_dir = './AllFields_05arcsec/'
+target_dir = './AllFields_deeper/'
 imagename = '12m_alldata_CO+model_allchans'
 out_file = target_dir + imagename
-#if not os.path.exists(out_file+'.image'):
 clean(vis='../12m_visdata/12m.concat25.contsub/',
     imagename = out_file,
     field = '30_Doradus',
