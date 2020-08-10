@@ -1,0 +1,35 @@
+os.system('rm -rf *.image')
+sdimaging(
+infiles            =  'TP_13CO.ms',
+outfile            =  "TP_13CO.image",
+overwrite          =  True,
+field              =  "30_Doradus",
+spw                =  "*",
+antenna            =  "",
+scan               =  "",
+intent             =  "OBSERVE_TARGET#ON_SOURCE",
+mode               =  "velocity",
+nchan              =  300,
+start              =  "282.715km/s",
+width              =  "-250m/s",
+veltype            =  "radio",
+outframe           =  "lsrk",
+gridfunction       =  "SF",
+convsupport        =  6,
+truncate           =  -1,
+gwidth             =  -1,
+jwidth             =  -1,
+imsize             =  [280, 320],
+cell               =  "3arcsec",
+phasecenter        =  'J2000 05h38m32.0 -69d02m18.0',
+projection         =  "SIN",
+ephemsrcname       =  "",
+pointingcolumn     =  "direction",
+restfreq           =  "220.39870060GHz",
+stokes             =  "I",
+minweight          =  0.1,
+brightnessunit     =  "Jy/beam",
+clipminmax         =  False
+)
+
+imcontsub("TP_13CO.image",chans="0~15;260~299",linefile='TP_13CO.line.image',contfile='TP_13CO.res.image')
