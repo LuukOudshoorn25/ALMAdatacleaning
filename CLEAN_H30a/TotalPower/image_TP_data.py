@@ -1,0 +1,35 @@
+os.system('rm -rf *.image* *log *last')
+sdimaging(
+infiles            =  'TP_H30a.ms',
+outfile            =  "TP_H30a.image",
+overwrite          =  True,
+field              =  "30_Doradus",
+spw                =  "*",
+antenna            =  "",
+scan               =  "",
+intent             =  "OBSERVE_TARGET#ON_SOURCE",
+mode               =  "velocity",
+nchan              =  85,
+start              =  "295km/s",
+width              =  "-1280m/s",
+veltype            =  "radio",
+outframe           =  "lsrk",
+gridfunction       =  "SF",
+convsupport        =  6,
+truncate           =  -1,
+gwidth             =  -1,
+jwidth             =  -1,
+imsize             =  [180, 220],
+cell               =  "3arcsec",
+phasecenter        =  'J2000 05h38m43.0 -69d04m40.0',
+projection         =  "SIN",
+ephemsrcname       =  "",
+pointingcolumn     =  "direction",
+restfreq           =  "231.900928GHz",
+stokes             =  "I",
+minweight          =  0.1,
+brightnessunit     =  "Jy/beam",
+clipminmax         =  False
+)
+
+imcontsub("TP_H30a.image",chans="5~18;63~72",linefile='TP_H30a.line.image',contfile='TP_H30a.res.image')
