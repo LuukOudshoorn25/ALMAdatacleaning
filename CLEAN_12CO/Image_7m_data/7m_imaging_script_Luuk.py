@@ -54,9 +54,12 @@ zerospacing = 'TP_12CO_regrid.image'
 ######################################################
 # Parameters:
 # 12CO(2-1)
+# Rest freq of CO2-1 line
 linefreq = '230.5380GHz'
+# Start velocity was chosen quite arbitrarily, using the plotms (to find where there is no emission)
 Vstart = '282.715km/s'
 chanwidth = '-250m/s'
+# Channels could be a bit smaller, but this seems to give more than enough resolution
 Nchans = 300
 NumIter = 6000
 cleanthres = '0.25mJy'
@@ -81,6 +84,10 @@ def process(out_file,zerospacing):
     impbcor(imagename=out_file+".image",pbimage=out_file+".flux.pbcoverage", outfile=out_file+".pbcor.image")
 
     ###########################################################
+    # We feather with the lower resolution (7m+TP data). Important step. 
+    # For field 1,3,4 these are the seperate 7m+TP fields. For 2+5 this is 
+    # the mosaic of the 7m+TP data from the individual fields
+
     print('=============================================================')
     print(' Running Feathering....')
     # Feather
@@ -95,14 +102,17 @@ def process(out_file,zerospacing):
 
     ###########################################################
     # Convolve to same resolution
+    # Smoothen everything to resolution of TP array to compare 
+    # Since the combined image should result in the same flux as 
+    # The TP alone data
     print('=============================================================')
     print(' Running convolutions....')
-    #os.system("rm -rf "+out_file+".pbcor.image.TPres")
-    #imsmooth(imagename=out_file+".pbcor.image",outfile=out_file+".pbcor.image.TPres",
-	#    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
-    #os.system("rm -rf "+out_file+".image.TPres")
-    #imsmooth(imagename=out_file+".image",outfile=out_file+".image.TPres",
-#	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    os.system("rm -rf "+out_file+".pbcor.image.TPres")
+    imsmooth(imagename=out_file+".pbcor.image",outfile=out_file+".pbcor.image.TPres",
+	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    os.system("rm -rf "+out_file+".image.TPres")
+    imsmooth(imagename=out_file+".image",outfile=out_file+".image.TPres",
+	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     os.system("rm -rf "+out_file+".feather.image.TPres")
     imsmooth(imagename=out_file+".feather.image",outfile=out_file+".feather.image.TPres",
 	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
@@ -111,6 +121,8 @@ def process(out_file,zerospacing):
 	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     
     os.system('rm -rf '+out_file+'*FullMap*')
+
+    # Regrid everything to the model image such that we can easily make a mosaic
     imregrid(out_file+".image",'7m.modelimage',out_file+".FullMapRegrid.image",overwrite=True)
     imregrid(out_file+".pbcor.image",'7m.modelimage',out_file+".pbcor.FullMapRegrid.image",overwrite=True)
     imregrid(out_file+".pbcor.feather.image",'7m.modelimage',out_file+".pbcor.feather.FullMapRegrid.image",overwrite=True)
@@ -123,6 +135,9 @@ def process(out_file,zerospacing):
 
 
 ###########################################################
+# Image everything without model first. This is the most natural
+# way. Only afterwards we feather with the TP data. 
+#os.system('mkdir field1 field2 field3 field4 field5')
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
 imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN+nomodel" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
@@ -155,6 +170,8 @@ for i in [0,1,2,3,4]:
         pbcor = False)
     process(out_file,zerospacing)
 
+# Now image with modelimage (the TP model). This is called hybrid imaging, since
+# we also feather the two images afterwards
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
 imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN+model" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
