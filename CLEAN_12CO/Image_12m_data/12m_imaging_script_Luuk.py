@@ -402,16 +402,16 @@ def process_coaddition(imlist, outputnames):
 
 
 imlist = glob('./fitsfiles/*+nomodel.feather.fits')
-process_coaddition(imlist,'30Dor_nomodel')
+process_coaddition(imlist,'30Dor_12CO_nomodel')
 
 imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_nomodel_pbcor')
+process_coaddition(imlist,'30Dor_12CO_nomodel_pbcor')
 
 imlist = glob('./fitsfiles/*+newmodel.feather.fits')
-process_coaddition(imlist,'30Dor_model')
+process_coaddition(imlist,'30Dor_12CO_model')
 
 imlist = glob('./fitsfiles/*+newmodel.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_model_pbcor')
+process_coaddition(imlist,'30Dor_12CO_model_pbcor')
 
 
 
