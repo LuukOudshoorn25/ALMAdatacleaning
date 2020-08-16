@@ -387,9 +387,11 @@ def process_coaddition(imlist, outputnames):
         data_tuple = [None]*N_ims
         for i, im in enumerate(imlist):
             data_tuple[i] = (hdu_slic[i].data,wcs_obj[i])
-        mcube[ich], foot[ich] = reproject_and_coadd(data_tuple, hd2d,input_weights=variance_wts, reproject_function=reproject_interp)
+        mcube[ich], foot[ich] = reproject_and_coadd(data_tuple, hd2d,input_weights=variance_wts,
+						    reproject_function=reproject_interp)
     hd3d = hdu_cube[0].header
-    for key in ['CRPIX1', 'CDELT1', 'CTYPE1', 'CRVAL1', 'CRPIX2', 'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
+    for key in ['CRPIX1', 'CDELT1', 'CTYPE1', 'CRVAL1', 'CRPIX2', 
+		'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
         hd3d[key] = hd2d[key]
     fits.writeto(outputnames+'.cube.fits',mcube.astype(np.float32), hd3d, overwrite=True)
     fits.writeto(outputnames+'.rms.fits',wtnse.astype(np.float32), hd3d, overwrite=True)
