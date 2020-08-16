@@ -401,10 +401,10 @@ process_coaddition(imlist,'30Dor_13CO_nomodel')
 imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
 process_coaddition(imlist,'30Dor_13CO_nomodel_pbcor')
 
-imlist = glob('./fitsfiles/*+newmodel.feather.fits')
+imlist = glob('./fitsfiles/*+model.feather.fits')
 process_coaddition(imlist,'30Dor_13CO_model')
 
-imlist = glob('./fitsfiles/*+newmodel.pbcor.feather.fits')
+imlist = glob('./fitsfiles/*+model.pbcor.feather.fits')
 process_coaddition(imlist,'30Dor_13CO_model_pbcor')
 
 
