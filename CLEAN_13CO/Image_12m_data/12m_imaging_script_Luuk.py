@@ -207,67 +207,6 @@ process(out_file,zerospacing)
 
 
 # MOSAICS
-import os
-os.system('cp -r ./field*/*F*model*Full*Regrid*fits ./mosaics')
-import numpy
-import bottleneck
-from astropy.io import fits
-import numpy as np
-from glob import glob
-
-def run(regex,outname):
-    fitsfiles = glob(regex)
-    datas = np.array([fits.open(w)[0].data for w in fitsfiles])
-    newarr = bottleneck.nanmedian(datas, axis=0)
-
-    hdul_out = fits.open(fitsfiles[0])
-    hdul_out[0].data = newarr
-    hdul_out.writeto(outname,overwrite=True)
-maps = [#'30DOR_F?_*7m+TP_CLEAN+model.feather.FullMapRegrid.fits',
-        #'30DOR_F?_*7m+TP_CLEAN+model.FullMapRegrid.fits',
-        #'30DOR_F?_*7m+TP_CLEAN+model.pbcor.feather.FullMapRegrid.fits',
-        #'30DOR_F?_*7m+TP_CLEAN+model.pbcor.FullMapRegrid.fits',
-        '30DOR_F?_*7m+TP_CLEAN+nomodel.feather.FullMapRegrid.fits',
-        '30DOR_F?_*7m+TP_CLEAN+nomodel.FullMapRegrid.fits',
-        '30DOR_F?_*7m+TP_CLEAN+nomodel.pbcor.feather.FullMapRegrid.fits',
-        '30DOR_F?_*7m+TP_CLEAN+nomodel.pbcor.FullMapRegrid.fits']
-names = ['12+7m+TP+model.feather.fits',
-         '12+7m+TP+model.fits',   
-         '12+7m+TP+model.pbcor.feather.fits',
-         '12+7m+TP+model.pbcor.fits',
-         '12+7m+TP+nomodel.feather.fits',
-         '12+7m+TP+nomodel.fits',   
-         '12+7m+TP+nomodel.pbcor.feather.fits',
-         '12+7m+TP+nomodel.pbcor.fits']
-for i in range(0,len(maps)):
-    run(maps[i],names[i])
-
-
-
-
-# run casa in mosaics folder
-# Cut out the region with data
-box='41,77,1261,1727'
-# Drop first few channels since there is no data. 
-# Drop last few since there is no emission
-chans='3~283'
-os.system('rm -rf 30Dor_13CO.image/')
-os.system('rm -rf 30Dor_13CO_pbcor.image/')
-imsubimage(imagename='12+7m+TP+nomodel.feather.fits',box=box,chans=chans,outfile='30Dor_13CO.image/')
-imsubimage(imagename='12+7m+TP+nomodel.pbcor.feather.fits',box=box,chans=chans,outfile='30Dor_13CO_pbcor.image/')
-
-# Export v_cubes and freq_cubes
-exportfits('30Dor_13CO.image/','30Dor_13CO.fits',overwrite=True)
-exportfits('30Dor_13CO.image/','30Dor_13CO_vcube.fits', velocity=True,overwrite=True)
-
-exportfits('30Dor_13CO_pbcor.image/','30Dor_13CO_pbcor.fits',overwrite=True)
-exportfits('30Dor_13CO_pbcor.image/','30Dor_13CO_pbcor_vcube.fits', velocity=True,overwrite=True)
-
-
-
-
-
-
 # Mosaic with weigthing
 import numpy as np
 from astropy.stats import mad_std
@@ -394,20 +333,21 @@ def process_coaddition(imlist, outputnames):
 		'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
         hd3d[key] = hd2d[key]
     fits.writeto(outputnames+'.cube.fits',mcube.astype(np.float32), hd3d, overwrite=True)
+    wtnse = np.nanmean(1/np.sqrt(foot), axis=0, keepdims=True)
     fits.writeto(outputnames+'.rms.fits',wtnse.astype(np.float32), hd3d, overwrite=True)
 
 
 imlist = glob('./fitsfiles/*+nomodel.feather.fits')
-process_coaddition(imlist,'30Dor_13CO_nomodel')
+process_coaddition(imlist,'30Dor_13CO')
 
 imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_13CO_nomodel_pbcor')
+process_coaddition(imlist,'30Dor_13CO_pbcor')
 
-imlist = glob('./fitsfiles/*+model.feather.fits')
-process_coaddition(imlist,'30Dor_13CO_model')
+imlist = glob('./fitsfiles/*+newmodel.feather.fits')
+process_coaddition(imlist,'30Dor_13CO_hybrid')
 
-imlist = glob('./fitsfiles/*+model.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_13CO_model_pbcor')
+imlist = glob('./fitsfiles/*+newmodel.pbcor.feather.fits')
+process_coaddition(imlist,'30Dor_13CO_hybrid_pbcor')
 
 
 
