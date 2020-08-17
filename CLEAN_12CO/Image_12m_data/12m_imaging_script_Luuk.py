@@ -207,74 +207,7 @@ clean(vis=vis12m_F2_5,
 process(out_file,zerospacing)
 
 # MOSAICS
-# Copy all regridded data to the mosaics folder
-os.system('mkdir mosaics')
-os.system('cp -r ./field*/*F*+model*Full*Regrid*fits ./mosaics')
-
-# Start ipython!
-import numpy
-import os
-# Bottleneck is a package to efficiently take median stacks of giant cubes with lots of nans
-import bottleneck
-from astropy.io import fits
-import numpy as np
-from glob import glob
-import time
-
-def run(regex,outname):
-    fitsfiles = glob(regex)
-    datas = np.array([fits.open(w)[0].data for w in fitsfiles])
-    newarr = bottleneck.nanmedian(datas, axis=0)
-
-    hdul_out = fits.open(fitsfiles[0])
-    hdul_out[0].data = newarr
-    hdul_out.writeto(outname,overwrite=True)
-maps = ['30DOR_F*_*7m+TP_CLEAN+nomodel.feather.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+nomodel.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+nomodel.pbcor.feather.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+nomodel.pbcor.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+model.feather.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+model.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+model.pbcor.feather.FullMapRegrid.fits',
-        '30DOR_F*_*7m+TP_CLEAN+model.pbcor.FullMapRegrid.fits',
-]
-names = ['12+7m+TP+nomodel.feather.fits',
-         '12+7m+TP+nomodel.fits',   
-         '12+7m+TP+nomodel.pbcor.feather.fits',
-         '12+7m+TP+nomodel.pbcor.fits',
-         '12+7m+TP+model.feather.fits',
-         '12+7m+TP+model.fits',   
-         '12+7m+TP+model.pbcor.feather.fits',
-         '12+7m+TP+model.pbcor.fits',
-]
-for i in range(0,len(maps)):
-    run(maps[i],names[i])
-
-
-# run casa in mosaics folder
-
-# run casa in mosaics folder
-# Cut out the region with data
-box='41,77,1261,1727'
-# Drop first few channels since there is no data. 
-# Drop last few since there is no emission
-
-chans='3~283'
-imsubimage(imagename='12+7m+TP+nomodel.feather.fits',box=box,chans=chans,outfile='30Dor_12CO.image/')
-imsubimage(imagename='12+7m+TP+nomodel.pbcor.feather.fits',box=box,chans=chans,outfile='30Dor_12CO_pbcor.image/')
-
-# Export v_cubes and freq_cubes
-exportfits('30Dor_12CO.image/','30Dor_12CO.fits')
-exportfits('30Dor_12CO.image/','30Dor_12CO_vcube.fits', velocity=True)
-
-exportfits('30Dor_12CO_pbcor.image/','30Dor_12CO_pbcor.fits')
-exportfits('30Dor_12CO_pbcor.image/','30Dor_12CO_pbcor_vcube.fits', velocity=True)
-
-# Now run the QualityCheck python scripts!
-
-
 # Weighted mosaics using python
-# Mosaic with weigthing
 import numpy as np
 from astropy.stats import mad_std
 from astropy import wcs
@@ -301,23 +234,23 @@ imlist = ['../field1/30DOR_F1_12m+7m+TP_CLEAN+nomodel.feather.image',
           '../field3/30DOR_F3_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
           '../field4/30DOR_F4_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
 
-          '../field1/30DOR_F1_12m+7m+TP_CLEAN+newmodel.feather.image',
-          '../field2/30DOR_F2_12m+7m+TP_CLEAN+newmodel.feather.image',
-          '../field3/30DOR_F3_12m+7m+TP_CLEAN+newmodel.feather.image',
-          '../field4/30DOR_F4_12m+7m+TP_CLEAN+newmodel.feather.image',
-          '../field5/30DOR_F5_12m+7m+TP_CLEAN+newmodel.feather.image',
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.feather.image',
 
-          '../field1/30DOR_F1_12m+7m+TP_CLEAN+newmodel.flux.pbcoverage',
-          '../field2/30DOR_F2_12m+7m+TP_CLEAN+newmodel.flux.pbcoverage',
-          '../field3/30DOR_F3_12m+7m+TP_CLEAN+newmodel.flux.pbcoverage',
-          '../field4/30DOR_F4_12m+7m+TP_CLEAN+newmodel.flux.pbcoverage',
-          '../field5/30DOR_F5_12m+7m+TP_CLEAN+newmodel.flux.pbcoverage',
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.flux.pbcoverage',
 
-          '../field1/30DOR_F1_12m+7m+TP_CLEAN+newmodel.pbcor.feather.image',
-          '../field2/30DOR_F2_12m+7m+TP_CLEAN+newmodel.pbcor.feather.image',
-          '../field3/30DOR_F3_12m+7m+TP_CLEAN+newmodel.pbcor.feather.image',
-          '../field4/30DOR_F4_12m+7m+TP_CLEAN+newmodel.pbcor.feather.image',
-          '../field5/30DOR_F5_12m+7m+TP_CLEAN+newmodel.pbcor.feather.image']
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.pbcor.feather.image']
 
 # CASA: Export all fitsfiles
 for im in imlist:
@@ -404,22 +337,22 @@ def process_coaddition(imlist, outputnames):
 
 
 imlist = glob('./fitsfiles/*+nomodel.feather.fits')
-process_coaddition(imlist,'30Dor_12CO_nomodel')
+process_coaddition(imlist,'30Dor_12CO')
 
 imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_12CO_nomodel_pbcor')
+process_coaddition(imlist,'30Dor_12CO_pbcor')
 
 imlist = glob('./fitsfiles/*+newmodel.feather.fits')
-process_coaddition(imlist,'30Dor_12CO_model')
+process_coaddition(imlist,'30Dor_12CO_hybrid')
 
 imlist = glob('./fitsfiles/*+newmodel.pbcor.feather.fits')
-process_coaddition(imlist,'30Dor_12CO_model_pbcor')
+process_coaddition(imlist,'30Dor_12CO_hybrid_pbcor')
 
 
 
 
 
-
+# Now run the QualityCheck python scripts!
 
 
 
