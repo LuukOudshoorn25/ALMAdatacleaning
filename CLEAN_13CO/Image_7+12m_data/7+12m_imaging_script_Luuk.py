@@ -51,6 +51,23 @@ vis7_12m_F5 = ["../7m_visdata/uid___A002_Xe3da01_X305b.ms.split20.contsub",
 	"../7m_visdata/uid___A002_Xe407cf_Xf987.ms.split20.contsub",
     "../12m_visdata/uid___A002_Xe45e29_X9839.ms.split29.contsub"]
 
+vis7_12m_F2_5 = ["../7m_visdata/uid___A002_Xe3da01_X305b.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe407cf_X9d8c.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe3da01_X16c5.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe407cf_X17cba.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe407cf_Xbb9d.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe3da01_X2352.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe407cf_X20de.ms.split20.contsub",
+	"../7m_visdata/uid___A002_Xe407cf_Xf987.ms.split20.contsub",
+       "../12m_visdata/uid___A002_Xe45e29_X9839.ms.split29.contsub",
+       "../7m_visdata/uid___A002_Xe31981_Xf7ea.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe32bed_Xdce2.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe32bed_Xe889.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe37224_X3836.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe37224_X461a.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe37224_Xdfe9.ms.split.cal.split20.contsub",
+	"../7m_visdata/uid___A002_Xe37224_Xe70a.ms.split.cal.split20.contsub",
+	"../12m_visdata/uid___A002_Xe48598_Xafeb.ms.split29.contsub"]
 
 
 ######################################################
@@ -197,7 +214,152 @@ for i in [0,1,2,3,4]:
 
 
 
+# MOSAICS
+# Weighted mosaics using python
+import numpy as np
+from astropy.stats import mad_std
+from astropy import wcs
+from astropy.io import fits
+from reproject.mosaicking import find_optimal_celestial_wcs
+from reproject import reproject_interp
+from reproject.mosaicking import reproject_and_coadd
+from FITS_tools import regrid_cube
+from FITS_tools.downsample import *
+from glob import glob
 
+
+imlist = ['../field1/30DOR_F1_12m+7m+TP_CLEAN+nomodel.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+nomodel.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+nomodel.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+nomodel.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+nomodel.feather.image',
+
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+nomodel.flux.pbcoverage',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+nomodel.flux.pbcoverage',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+nomodel.flux.pbcoverage',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+nomodel.flux.pbcoverage',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+nomodel.flux.pbcoverage',
+
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+nomodel.pbcor.feather.image',
+
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.feather.image',
+
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.flux.pbcoverage',
+
+          '../field1/30DOR_F1_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field2/30DOR_F2_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field3/30DOR_F3_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field4/30DOR_F4_12m+7m+TP_CLEAN+model.pbcor.feather.image',
+          '../field5/30DOR_F5_12m+7m+TP_CLEAN+model.pbcor.feather.image']
+
+# CASA: Export all fitsfiles
+for im in imlist:
+    if 'image' in im:
+        outfile = './fitsfiles/'+im.split('/')[-1].replace('.image','.fits')
+        if not os.path.exists(outfile):        
+            exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
+    elif 'pbco' in im:
+        outfile = './fitsfiles/'+im.split('/')[-1].replace('.flux.pbcoverage','.pb.fits')
+        exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
+
+
+
+
+# Python: get var maps
+def get_var_map(im,pb_replace):
+    flatimg, hdr = fits.getdata(im,header=True)
+    rms = mad_std(flatimg, axis=None, ignore_nan=True)
+    pbfile = im.replace(pb_replace,'.pb')
+    pbimage, pbhd = fits.getdata(pbfile,header=True)
+    pbcorimg = flatimg / pbimage
+    varimg  = (rms / pbimage)**2
+    fits.writeto(im.replace('.feather','.var'),
+                     varimg.astype(np.float32), hdr, overwrite=True)
+
+imlist = glob('./fitsfiles/*pbcor.feather.fits')
+for im in imlist:
+    get_var_map(im,'.pbcor.feather')
+imlist = glob('./fitsfiles/*model.feather.fits')
+for im in imlist:
+    get_var_map(im,'.feather')
+
+
+hd2d = fits.getheader('template_30Dor.fits')
+
+head0 = fits.getheader(imlist[0])
+naxis3 = head0['naxis3']
+naxis2 = hd2d['naxis2']
+naxis1 = hd2d['naxis1']
+
+# To Do: nomodel: normal + pbcor
+#        model:   normal + pbcor
+
+def process_coaddition(imlist, outputnames):
+    mcube = np.zeros(shape=(naxis3,naxis2,naxis1))
+    foot  = np.zeros(shape=(naxis3,naxis2,naxis1))
+    wtnse = np.zeros(shape=(naxis3,naxis2,naxis1))
+    #
+    varlist = [w.replace('.feather','.var') for w in imlist]
+    N_ims = len(imlist)
+    hdu_cube = [None] * N_ims
+    hdu_slic = [None] * N_ims
+    var_cube = [None] * N_ims
+    var_slic = [None] * N_ims
+    wcs_obj = [None] * N_ims
+    for i, im in enumerate(imlist):
+        hdu_cube[i] = fits.open(imlist[i])[0]
+        var_cube[i] = fits.open(varlist[i])[0]
+    # --- Loop over velocity channels
+    for ich in range(naxis3):
+        variance_wts = []
+        for i, im in enumerate(imlist):
+            hdu_slic[i] = fits.PrimaryHDU(data=hdu_cube[i].data[ich], header=hdu_cube[i].header)
+            hdu_slic[i].header['WCSAXES'] = 2
+            var_slic[i] = fits.PrimaryHDU(data=var_cube[i].data[ich], header=var_cube[i].header)
+            var_slic[i].header['WCSAXES'] = 2
+            for key in ['CRVAL3', 'CTYPE3', 'CRPIX3', 'CDELT3', 'CUNIT3']:
+                del hdu_slic[i].header[key]
+                del var_slic[i].header[key]
+            variance_wts.append(1/var_slic[i].data)
+            wcs_obj[i] = wcs.WCS(hdu_slic[i]).dropaxis(2)
+        print('Working on channel',ich,'of cube ',outputnames,end='\r')
+        data_tuple = [None]*N_ims
+        for i, im in enumerate(imlist):
+            data_tuple[i] = (hdu_slic[i].data,wcs_obj[i])
+        mcube[ich], foot[ich] = reproject_and_coadd(data_tuple, hd2d,input_weights=variance_wts,
+						    reproject_function=reproject_interp)
+    hd3d = hdu_cube[0].header
+    for key in ['CRPIX1', 'CDELT1', 'CTYPE1', 'CRVAL1', 'CRPIX2', 
+		'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
+        hd3d[key] = hd2d[key]
+    fits.writeto(outputnames+'.cube.fits',mcube.astype(np.float32), hd3d, overwrite=True)
+    wtnse = np.nanmean(1/np.sqrt(foot), axis=0, keepdims=True)
+    fits.writeto(outputnames+'.rms.fits',wtnse.astype(np.float32), hd3d, overwrite=True)
+
+
+imlist = glob('./fitsfiles/*+nomodel.feather.fits')
+process_coaddition(imlist,'30Dor_13CO')
+
+imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
+process_coaddition(imlist,'30Dor_13CO_pbcor')
+
+imlist = glob('./fitsfiles/*+model.feather.fits')
+process_coaddition(imlist,'30Dor_13CO_hybrid')
+
+imlist = glob('./fitsfiles/*+model.pbcor.feather.fits')
+process_coaddition(imlist,'30Dor_13CO_hybrid_pbcor')
 
 
 
