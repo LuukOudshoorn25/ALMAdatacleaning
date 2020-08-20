@@ -206,6 +206,15 @@ clean(vis=vis12m_F2_5,
 	pbcor = False)
 process(out_file,zerospacing)
 
+
+
+
+
+
+
+
+
+
 # MOSAICS
 # Weighted mosaics using python
 import numpy as np
@@ -285,7 +294,6 @@ for im in imlist:
 
 
 hd2d = fits.getheader('template_30Dor.fits')
-
 head0 = fits.getheader(imlist[0])
 naxis3 = head0['naxis3']
 naxis2 = hd2d['naxis2']
@@ -333,7 +341,10 @@ def process_coaddition(imlist, outputnames):
 		'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
         hd3d[key] = hd2d[key]
     fits.writeto(outputnames+'.cube.fits',mcube.astype(np.float32), hd3d, overwrite=True)
-    wtnse = np.nanmean(1/np.sqrt(foot), axis=0, keepdims=True)
+    foot_sqrt = np.sqrt(foot)
+    # Replace zero with nan
+    foot_sqrt[foot_sqrt==0] = np.nan
+    wtnse = np.nanmean(1/foot_sqrt, axis=0, keepdims=True)
     fits.writeto(outputnames+'.rms.fits',wtnse.astype(np.float32), hd3d, overwrite=True)
 
 
@@ -343,10 +354,10 @@ process_coaddition(imlist,'30Dor_12CO')
 imlist = glob('./fitsfiles/*+nomodel.pbcor.feather.fits')
 process_coaddition(imlist,'30Dor_12CO_pbcor')
 
-imlist = glob('./fitsfiles/*+newmodel.feather.fits')
+imlist = glob('./fitsfiles/*+model.feather.fits')
 process_coaddition(imlist,'30Dor_12CO_hybrid')
 
-imlist = glob('./fitsfiles/*+newmodel.pbcor.feather.fits')
+imlist = glob('./fitsfiles/*+model.pbcor.feather.fits')
 process_coaddition(imlist,'30Dor_12CO_hybrid_pbcor')
 
 

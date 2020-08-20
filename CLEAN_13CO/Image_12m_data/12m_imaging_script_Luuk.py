@@ -333,7 +333,10 @@ def process_coaddition(imlist, outputnames):
 		'CDELT2', 'CTYPE2', 'CRVAL2', 'LONPOLE', 'LATPOLE']:
         hd3d[key] = hd2d[key]
     fits.writeto(outputnames+'.cube.fits',mcube.astype(np.float32), hd3d, overwrite=True)
-    wtnse = np.nanmean(1/np.sqrt(foot), axis=0, keepdims=True)
+    foot_sqrt = np.sqrt(foot)
+    # Replace zero with nan
+    foot_sqrt[foot_sqrt==0] = np.nan
+    wtnse = np.nanmean(1/foot_sqrt, axis=0, keepdims=True)
     fits.writeto(outputnames+'.rms.fits',wtnse.astype(np.float32), hd3d, overwrite=True)
 
 
