@@ -24,8 +24,8 @@ plotms(vis12m_F1[2],xaxis='chan',yaxis='amp',avgtime='1e8',plotfile='Spectrum_13
 # Parameters:
 
 Nchans = 1
-NumIter = 10000
-cleanthres = '1.0mJy'
+NumIter = 15000
+cleanthres = '0.5mJy'
 cellsize = '0.25arcsec'
 mapsize = [1000,1000,1000,1000,1000]
 # We image each field seperately and have these phasecenters
@@ -35,24 +35,25 @@ phasecenters = ['J2000 05h38m32.0 -69d02m18.0','J2000 05h38m34.0 -69d04m38.0','J
 
 
 
-spw = "31:20~200;350~430,29:20~550;1600~1900,27:0~400;1400~1900,25:10~550;1500~1900,33:10~50;400~450,35:10~50;400~450,37:10~50;400~450"
-
-
+spw = "31:20~200,31:350~430,29:20~550,29:1600~1900,27:0~400,27:1400~1900,25:10~550,25:1500~1900,33:10~50,33:400~450,35:10~50,35:400~450,37:10~50,37:400~450"
 visdata = [vis12m_F1,vis12m_F2,vis12m_F3,vis12m_F4,vis12m_F5]
 imagenames = ['30DOR_F'+str(w)+"_cont_all_spw_taper10arcsec" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
-# Cleaning without model image. This only has to be done for F1,F3,F4
 
 
-for i in [0,1,2,3,4]:
+
+for i in [2]:
     if i==2:
-        spw = 2*spw
+        spws = 2*[spw]
+    else:
+        spws = spw
     target_dir = targetdirs[i]
     out_file = target_dir + imagenames[i]
+    print(out_file)
     tclean(vis=visdata[i],
         imagename = out_file,
         field = '30_Doradus',
-        spw = spw,
+        spw = spws,
         specmode = 'mfs',
         outframe = 'LSRK',
         niter = NumIter,
@@ -71,10 +72,42 @@ for i in [0,1,2,3,4]:
 
 
 
+spw_12_13CO = "29:20~550,29:1600~1900,25:10~550,25:1500~1900"
+visdata = [vis12m_F1,vis12m_F2,vis12m_F3,vis12m_F4,vis12m_F5]
+imagenames = ['30DOR_F'+str(w)+"_cont_12_13_CO_spw_taper10arcsec" for w in range(1,6)]
+targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 
 
 
-"""
+for i in [2,3,4,0,1]:
+    if i==2:
+        spws = 2*[spw_12_13CO]
+    else:
+        spws = spw_12_13CO
+    target_dir = targetdirs[i]
+    out_file = target_dir + imagenames[i]
+    print(out_file)
+    tclean(vis=visdata[i],
+        imagename = out_file,
+        field = '30_Doradus',
+        spw = spws,
+        specmode = 'mfs',
+        outframe = 'LSRK',
+        niter = NumIter,
+        threshold = cleanthres,
+        deconvolver = 'hogbom',
+        gridder = 'mosaic',
+        imsize = mapsize[i],
+        cell = cellsize,
+        weighting = 'briggs',
+        robust = 0.5,
+        restoringbeam=["1.75arcsec","1.75arcsec","0deg"],
+        phasecenter = phasecenters[i],
+        uvtaper=['10arcsec','10arcsec','0deg'],
+        parallel=True,
+        pbcor = False)
+
+
 # MOSAICS
 # Weighted mosaics using python
 import numpy as np
@@ -88,24 +121,16 @@ from FITS_tools import regrid_cube
 from FITS_tools.downsample import *
 from glob import glob
 
-imlist = ['../field1/30DOR_F1_12m_continuum_deeper.flux.pbcoverage',
-          '../field2_5/30DOR_F2+5_12m_continuum.flux.pbcoverage',
-          '../field3/30DOR_F3_12m_continuum_deeper.flux.pbcoverage',
-          '../field4/30DOR_F4_12m_continuum_deeper.flux.pbcoverage',
-        
-          '../field1/30DOR_F1_12m_continuum_deeper.image',
-          '../field2_5/30DOR_F2+5_12m_continuum.image',
-          '../field3/30DOR_F3_12m_continuum_deeper.image',
-          '../field4/30DOR_F4_12m_continuum_deeper.image']
-
-# CASA: Export all fitsfiles
+imlist = glob('../field?/*cont_12_13_CO_spw_taper10arcsec.image')
 for im in imlist:
-    if 'image' in im:
-        outfile = './fitsfiles/'+im.split('/')[-1].replace('.image','.fits')
-        if not os.path.exists(outfile):        
-            exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
-    elif 'pbco' in im:
-        outfile = './fitsfiles/'+im.split('/')[-1].replace('.flux.pbcoverage','.pb.fits')
+    outfile = './fitsfiles/'+im.split('/')[-1].replace('.image','.fits')
+    if not os.path.exists(outfile):        
+        exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
+
+imlist = glob('../field?/*cont_12_13_CO_spw_taper10arcsec.pb')
+for im in imlist:
+    outfile = './fitsfiles/'+im.split('/')[-1].replace('.pb','.pb.fits')
+    if not os.path.exists(outfile):        
         exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
 
 
@@ -122,18 +147,18 @@ def get_var_map(im):
     fits.writeto(im.replace('.fits','.var.fits'),
                      varimg.astype(np.float32), hdr, overwrite=True)
 
-imlist = glob('./fitsfiles/*continuum_deeper.fits')
+imlist = glob('./fitsfiles/*arcsec.fits')
 for im in imlist:
     get_var_map(im,)
 
 
-hd2d = fits.getheader('template_30Dor.fits')
+hd2d = fits.getheader('./12m_continuum.model.fits')
 naxis2 = hd2d['naxis2']
 naxis1 = hd2d['naxis1']
 
 
 naxis3 = 1
-imlist = glob('./fitsfiles/*continuum_deeper.fits')
+imlist = glob('./fitsfiles/*arcsec.fits')
 outputnames='30Dor_continuum'
 
 mcube = np.zeros(shape=(naxis2,naxis1))
