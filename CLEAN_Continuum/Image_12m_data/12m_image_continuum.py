@@ -35,12 +35,12 @@ phasecenters = ['J2000 05h38m32.0 -69d02m18.0','J2000 05h38m34.0 -69d04m38.0','J
 
 spw = "31:20~200,31:350~430,29:20~550,29:1600~1900,27:0~400,27:1400~1900,25:10~550,25:1500~1900,33:10~50,33:400~450,35:10~50,35:400~450,37:10~50,37:400~450"
 visdata = [vis12m_F1,vis12m_F2,vis12m_F3,vis12m_F4,vis12m_F5]
-imagenames = ['30DOR_F'+str(w)+"_cont_all_spw_taper10arcsec" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_cont_all_spw_taper0arcsec" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 
 
 
-for i in [2]:
+for i in [0,1,2,3,4]:
     if i==2:
         spws = 2*[spw]
     else:
@@ -63,24 +63,24 @@ for i in [2]:
         robust = 0.5,
         restoringbeam=["1.75arcsec","1.75arcsec","0deg"],
         phasecenter = phasecenters[i],
-        uvtaper=['10arcsec','10arcsec','0deg'],
+        #uvtaper=['10arcsec','10arcsec','0deg'],
         parallel=True,
         pbcor = False)
 
 
 
-spw_12_13CO = "29:20~550,29:1600~1900,25:10~550,25:1500~1900"
+spw = "31:20~200,31:350~430,33:10~200,33:400~450,35:10~200,35:400~450,37:10~200,37:400~450"
 visdata = [vis12m_F1,vis12m_F2,vis12m_F3,vis12m_F4,vis12m_F5]
-imagenames = ['30DOR_F'+str(w)+"_cont_12_13_CO_spw_taper10arcsec" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_cont_spw_31_33_35_37_spw_taper0arcsec" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 
 
 
-for i in [2,3,4,0,1]:
+for i in [1,2,3,4,0]:
     if i==2:
-        spws = 2*[spw_12_13CO]
+        spws = 2*[spw]
     else:
-        spws = spw_12_13CO
+        spws = spw
     target_dir = targetdirs[i]
     out_file = target_dir + imagenames[i]
     tclean(vis=visdata[i],
@@ -99,9 +99,53 @@ for i in [2,3,4,0,1]:
         robust = 0.5,
         restoringbeam=["1.75arcsec","1.75arcsec","0deg"],
         phasecenter = phasecenters[i],
-        uvtaper=['10arcsec','10arcsec','0deg'],
+        #uvtaper=['10arcsec','10arcsec','0deg'],
         parallel=True,
         pbcor = False)
+
+
+
+# Only H30a window:27
+spw = "27:10~700,27:1300~1910"
+visdata = [vis12m_F1,vis12m_F2,vis12m_F3,vis12m_F4,vis12m_F5]
+imagenames = ['30DOR_F'+str(w)+"_cont_spw_27_spw_taper0arcsec" for w in range(1,6)]
+targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
+for i in [1,2,3,4,0]:
+    if i==2:
+        spws = 2*[spw]
+    else:
+        spws = spw
+    target_dir = targetdirs[i]
+    out_file = target_dir + imagenames[i]
+    tclean(vis=visdata[i],
+        imagename = out_file,
+        field = '30_Doradus',
+        spw = spws,
+        specmode = 'mfs',
+        outframe = 'LSRK',
+        niter = NumIter,
+        threshold = cleanthres,
+        deconvolver = 'hogbom',
+        gridder = 'mosaic',
+        imsize = mapsize[i],
+        cell = cellsize,
+        weighting = 'briggs',
+        robust = 0.5,
+        restoringbeam=["1.75arcsec","1.75arcsec","0deg"],
+        phasecenter = phasecenters[i],
+        #uvtaper=['10arcsec','10arcsec','0deg'],
+        parallel=True,
+        pbcor = False)
+
+
+
+
+
+
+
+
+
+
 
 
 # MOSAICS
@@ -117,13 +161,13 @@ from FITS_tools import regrid_cube
 from FITS_tools.downsample import *
 from glob import glob
 
-imlist = glob('../field?/*cont_12_13_CO_spw_taper10arcsec.image')
+imlist = glob('../field?/*cont_all_spw_taper10arcsec.image')
 for im in imlist:
     outfile = './fitsfiles/'+im.split('/')[-1].replace('.image','.fits')
     if not os.path.exists(outfile):        
         exportfits(im, outfile, velocity=True,dropdeg=True,overwrite=True)
 
-imlist = glob('../field?/*cont_12_13_CO_spw_taper10arcsec.pb')
+imlist = glob('../field?/*cont_all_spw_taper10arcsec.pb')
 for im in imlist:
     outfile = './fitsfiles/'+im.split('/')[-1].replace('.pb','.pb.fits')
     if not os.path.exists(outfile):        
