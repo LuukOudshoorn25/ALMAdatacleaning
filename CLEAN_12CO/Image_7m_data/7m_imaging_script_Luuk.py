@@ -49,7 +49,7 @@ vis7m_F5 = ["../7m_visdata/uid___A002_Xe3da01_X305b.ms.split16.contsub",
 
 # Regrid to the model image frame
 #imregrid(imagename='../TotalPower/TP_12CO.line.subim',template='7m.modelimage/',output='TP_12CO_regrid.image')
-zerospacing = 'TP_12CO_regrid.image' 
+zerospacing = '../TotalPower/12CO_TP_29sept.fits'
 
 ######################################################
 # Parameters:
@@ -57,11 +57,14 @@ zerospacing = 'TP_12CO_regrid.image'
 # Rest freq of CO2-1 line
 linefreq = '230.5380GHz'
 # Start velocity was chosen quite arbitrarily, using the plotms (to find where there is no emission)
-Vstart = '282.715km/s'
-chanwidth = '-250m/s'
+#Vstart = '282.715km/s'
+Vstart = '290km/s'
+#chanwidth = '-250m/s'
+chanwidth = '-83.33333333m/s'
 # Channels could be a bit smaller, but this seems to give more than enough resolution
-Nchans = 300
-NumIter = 6000
+#Nchans = 300
+Nchans = 1100
+NumIter = 8000
 cleanthres = '0.25mJy'
 cellsize = '0.5arcsec'
 mapsize = [600,600,600,600,600]
@@ -71,6 +74,7 @@ phasecenters = ['J2000 05h38m32.0 -69d02m18.0','J2000 05h38m34.0 -69d04m38.0','J
 SDFAC = 1.
 
 ###########################################################
+
 
 def process(out_file,zerospacing):
     
@@ -105,31 +109,31 @@ def process(out_file,zerospacing):
     # Smoothen everything to resolution of TP array to compare 
     # Since the combined image should result in the same flux as 
     # The TP alone data
-    print('=============================================================')
-    print(' Running convolutions....')
+    #print('=============================================================')
+    #print(' Running convolutions....')
     os.system("rm -rf "+out_file+".pbcor.image.TPres")
-    imsmooth(imagename=out_file+".pbcor.image",outfile=out_file+".pbcor.image.TPres",
-	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    #imsmooth(imagename=out_file+".pbcor.image",outfile=out_file+".pbcor.image.TPres",
+#	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     os.system("rm -rf "+out_file+".image.TPres")
-    imsmooth(imagename=out_file+".image",outfile=out_file+".image.TPres",
-	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    #imsmooth(imagename=out_file+".image",outfile=out_file+".image.TPres",
+#	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     os.system("rm -rf "+out_file+".feather.image.TPres")
-    imsmooth(imagename=out_file+".feather.image",outfile=out_file+".feather.image.TPres",
-	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    #imsmooth(imagename=out_file+".feather.image",outfile=out_file+".feather.image.TPres",
+#	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     os.system("rm -rf "+out_file+".pbcor.feather.image.TPres")
-    imsmooth(imagename=out_file+".pbcor.feather.image",outfile=out_file+".pbcor.feather.image.TPres",
-	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
+    #imsmooth(imagename=out_file+".pbcor.feather.image",outfile=out_file+".pbcor.feather.image.TPres",
+#	    major=TP_bmaj,minor=TP_bmin,pa=TP_bpa,targetres=True)
     
     os.system('rm -rf '+out_file+'*FullMap*')
 
     # Regrid everything to the model image such that we can easily make a mosaic
-    imregrid(out_file+".image",'7m.modelimage',out_file+".FullMapRegrid.image",overwrite=True)
-    imregrid(out_file+".pbcor.image",'7m.modelimage',out_file+".pbcor.FullMapRegrid.image",overwrite=True)
+    #imregrid(out_file+".image",'7m.modelimage',out_file+".FullMapRegrid.image",overwrite=True)
+    #imregrid(out_file+".pbcor.image",'7m.modelimage',out_file+".pbcor.FullMapRegrid.image",overwrite=True)
     imregrid(out_file+".pbcor.feather.image",'7m.modelimage',out_file+".pbcor.feather.FullMapRegrid.image",overwrite=True)
     imregrid(out_file+".feather.image",'7m.modelimage',out_file+".feather.FullMapRegrid.image",overwrite=True)
 
-    exportfits(out_file+".FullMapRegrid.image",out_file+".FullMapRegrid.fits",overwrite=True)
-    exportfits(out_file+".pbcor.FullMapRegrid.image",out_file+".pbcor.FullMapRegrid.fits",overwrite=True)
+    #exportfits(out_file+".FullMapRegrid.image",out_file+".FullMapRegrid.fits",overwrite=True)
+    #exportfits(out_file+".pbcor.FullMapRegrid.image",out_file+".pbcor.FullMapRegrid.fits",overwrite=True)
     exportfits(out_file+".pbcor.feather.FullMapRegrid.image",out_file+".pbcor.feather.FullMapRegrid.fits",overwrite=True)
     exportfits(out_file+".feather.FullMapRegrid.image",out_file+".feather.FullMapRegrid.fits",overwrite=True)
 
@@ -139,7 +143,7 @@ def process(out_file,zerospacing):
 # way. Only afterwards we feather with the TP data. 
 #os.system('mkdir field1 field2 field3 field4 field5')
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
-imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN+nomodel" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo+nomodel" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 for i in [0,1,2,3,4]:
     target_dir = targetdirs[i]
@@ -168,12 +172,12 @@ for i in [0,1,2,3,4]:
         restoringbeam=["7.0arcsec","7.0arcsec","0.0deg"],
         phasecenter = phasecenters[i],
         pbcor = False)
-    process(out_file,zerospacing)
+    #process(out_file,zerospacing)
 
 # Now image with modelimage (the TP model). This is called hybrid imaging, since
 # we also feather the two images afterwards
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
-imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN+model" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo+model" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 for i in [0,1,2,3,4]:
     target_dir = targetdirs[i]
@@ -202,7 +206,7 @@ for i in [0,1,2,3,4]:
         restoringbeam=["7.0arcsec","7.0arcsec","0.0deg"],
         phasecenter = phasecenters[i],
         pbcor = False)
-    process(out_file,zerospacing)
+    #process(out_file,zerospacing)
 
 
 # MOSAICS
