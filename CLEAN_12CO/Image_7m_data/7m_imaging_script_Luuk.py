@@ -64,10 +64,10 @@ chanwidth = '-83.33333333m/s'
 # Channels could be a bit smaller, but this seems to give more than enough resolution
 #Nchans = 300
 Nchans = 1100
-NumIter = 8000
+NumIter = 7000
 cleanthres = '0.25mJy'
-cellsize = '0.5arcsec'
-mapsize = [600,600,600,600,600]
+cellsize = '1.5arcsec'
+mapsize = [200,200,200,200,200]
 #mapsize_large = 600
 #phasecenter_large="J2000 05h38m40.7 -69d04m29.47" # for complete field
 phasecenters = ['J2000 05h38m32.0 -69d02m18.0','J2000 05h38m34.0 -69d04m38.0','J2000 05h39m0.0 -69d02m45.0','J2000 05h39m0.0 -69d04m42.0','J2000 05h38m36.0 -69d07m00.0']
@@ -143,7 +143,7 @@ def process(out_file,zerospacing):
 # way. Only afterwards we feather with the TP data. 
 #os.system('mkdir field1 field2 field3 field4 field5')
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
-imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo+nomodel" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo_largepix+nomodel" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 for i in [0,1,2,3,4]:
     target_dir = targetdirs[i]
@@ -177,7 +177,7 @@ for i in [0,1,2,3,4]:
 # Now image with modelimage (the TP model). This is called hybrid imaging, since
 # we also feather the two images afterwards
 visdata = [vis7m_F1,vis7m_F2,vis7m_F3,vis7m_F4,vis7m_F5]
-imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo+model" for w in range(1,6)]
+imagenames = ['30DOR_F'+str(w)+"_7m+TP_CLEAN_smallvelo_largepix+model" for w in range(1,6)]
 targetdirs = ['./field'+str(w)+'/' for w in range(1,6)]
 for i in [0,1,2,3,4]:
     target_dir = targetdirs[i]
