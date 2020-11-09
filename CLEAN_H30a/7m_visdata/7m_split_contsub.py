@@ -55,8 +55,14 @@ for ms in mslist:
 
 for ms in glob('*.split18'):
     print('UVcontsub',ms)
-    uvcontsub(vis=ms,field="30_Dor*",fitspw="0:230.8~231.1GHz;232.4~232.48GHz")
+    split(vis=ms,field="30_Dor*",spw='0:231.47~232.55GHz',outputvis=ms+'.splitchan',datacolumn='data')
 
+
+for ms in glob('*.split18.splitchan'):
+    print('UVcontsub',ms)
+    uvcontsub(vis=ms,field="30_Dor*",fitspw="*:231.47~231.6GHz;231.95~232.5GHz",fitorder=0)
+
+# emission range: 231.677-231.742
 
 
 
