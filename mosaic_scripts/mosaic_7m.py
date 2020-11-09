@@ -15,12 +15,12 @@ from FITS_tools.downsample import *
 
 imtype    = '7meter'
 sline     = ['12CO']
-prefix    = '30DOR_F'
-basename  = '_7mTP_feather+nomodel.'+sline[0]
-baseint   = '_7m+TP_CLEAN+nomodel'
+prefix    = './images/30DOR_F'
+basename  = '_7m+TP_feather_smallvelo_largepix+nomodel.'+sline[0]
+baseint   = '_7m+TP_CLEAN_smallvelo_largepix+nomodel'
 outfile   = '30Dor_feather_mosaic_'
-dofields  = ['1', '2', '3', '4', '5']
-binfactor = 2
+dofields  = ['1', '2', '3', '4','5']
+binfactor = 1
 pbcut = 0.2
 velregrid = False
 nofeather = True
@@ -32,8 +32,8 @@ if nofeather:
 
 # Only if input cubes have inconsistent velocity axes
 if velregrid:
-    vstart = 220.1
-    vend   = 285
+    vstart = 215
+    vend   = 300
     delv   = 0.1
     naxis3 = int(round((vend-vstart)/delv + 1))
 

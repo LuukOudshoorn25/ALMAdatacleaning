@@ -8,14 +8,19 @@
 
 #import os
 
+os.system('rm -rf images')
+os.system('mkdir images')
+os.system('cp -r ../field*/*smallvelo_largepix+nomodel*image ./images/')
+os.system('cp -r ../field*/*smallvelo_largepix+nomodel*flux.pbcoverage ./images/')
+
 dofields  = ['1', '2', '3', '4', '5']
 
 prefix12 = 'PCC_12m_'
 #prefixtp = '../TP/30DOR_TP_'
-prefixtp = '../TP/TP_29sept_'
-prefixint = '30DOR_F'
-baseint = '_7m+TP_CLEAN+nomodel'
-baseout   = '_7mTP_feather+nomodel.'
+prefixtp = './TP_29sept_'
+prefixint = './images/30DOR_F'
+baseint = '_7m+TP_CLEAN_smallvelo_largepix+nomodel'
+baseout   = '_7m+TP_feather_smallvelo_largepix+nomodel.'
 linename = ['12CO']
 
 # Use TP_29sept_12CO.fits as the TP mosaic

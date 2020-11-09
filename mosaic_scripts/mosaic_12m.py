@@ -15,9 +15,9 @@ from FITS_tools.downsample import *
 
 imtype    = '12meter'
 sline     = ['12CO']
-prefix    = '30DOR_F'
+prefix    = './images/30DOR_F'
 basename  = '_12m7mTP_feather+nomodel.'+sline[0]
-baseint   = '_12m+7m+TP_CLEAN+nomodel'
+baseint   = '_12m+7m+TP_CLEAN_smallvelo+nomodel'
 outfile   = '30Dor_feather_mosaic_'
 dofields  = ['1', '2', '3', '4', '5']
 binfactor = 2

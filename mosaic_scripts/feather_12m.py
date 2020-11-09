@@ -4,12 +4,19 @@
 
 #import os
 
-dofields  = ['1', '2', '3', '4', '5']
+dofields  = ['1','2','3','4','5']
 
-prefixint = '30DOR_F'
-dir7tp = '../7meter/'
-base7tp = '_7mTP_feather+nomodel.'
-base12m = '_12m+7m+TP_CLEAN+nomodel'
+os.system('mkdir 7meter')
+os.system('cp -r ../../Image_7m_data/mosaic_largepix/images/*pbcor ./7meter')
+os.system('mkdir images')
+os.system('cp -r ../field*/30DOR_F?_12m+7m+TP_CLEAN_smallvelo+nomodel.image ./images')
+os.system('cp -r ../field*/30DOR_F?_12m+7m+TP_CLEAN_smallvelo+nomodel.flux.pbcoverage ./images')
+
+prefixint = './images/30DOR_F'
+dir7tp = './7meter/'
+prefix7 = './7meter/30DOR_F'
+base7tp = '_7m+TP_feather_smallvelo_largepix+nomodel.'
+base12m = '_12m+7m+TP_CLEAN_smallvelo+nomodel'
 #base12m = '_12m+7m+TP_CLEAN+nomodel.2as'
 baseout   = '_12m7mTP_feather+nomodel.'
 linename = ['12CO']
@@ -30,7 +37,7 @@ for i in range(0,len(linename)):
 #                 targetres=True, major='2arcsec', minor='2arcsec', pa='0deg')
  
         # Regrid 7m+TP data to match 12m data:
-        imregrid(imagename=dir7tp+prefixint+field+base7tp+linename[i]+'.pbcor',
+        imregrid(imagename=prefix7+field+base7tp+linename[i]+'.pbcor',
              template=prefixint+field+base12m+'.image',
              output=prefixint+field+'.'+linename[i]+'.7tprgd', overwrite=True)
         # Apply 12m sensitivity to 7m+TP data:
